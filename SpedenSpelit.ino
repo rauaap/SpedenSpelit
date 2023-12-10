@@ -213,7 +213,7 @@ ISR(TIMER1_COMPA_vect)
     else {
         setAllLeds(); // indicates that the game has ended
     }
-
+	//s
   /*
     Here you generate a random number that is used to
     set certain led.
