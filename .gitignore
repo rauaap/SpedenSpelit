@@ -1,0 +1,12 @@
+# arduino-cli files
+serial_monitor.py
+sketch.yaml
+
+# QtCreator files
+*.creator.user
+*.cflags
+*.config
+*.creator
+*.cxxflags
+*.files
+*.includes
