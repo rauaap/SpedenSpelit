@@ -135,7 +135,6 @@ void loop()
             if (next != State::NULL) state = next;
             break;
         }
-
         break;
 
     case LCD_GAMEOVER:

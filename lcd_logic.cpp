@@ -1,4 +1,4 @@
-#include "screen.h"
+#include "lcd_logic.h"
 
 #include <stdio.h>
 #include <string.h>
