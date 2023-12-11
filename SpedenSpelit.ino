@@ -14,17 +14,18 @@ enum State {
 volatile State state = IDLE;
 
 // Button that was pressed
-int painike = 0;
+int painike;
 // PIN that gives us a random number
 int randomNumberGeneratorPin = A0;
 //
-int randomValue;
 int randomNumbers[100];
 int userNumbers[100];
 int indexRandomNumbers = 0; // this can also be used as player score, because it has same value
+// Led number that is going to go to the randomNumbers -array
+uint8_t ledNumber;
 // These keep track on interrupt speed for the leds
-int count1 = 0;
-int count2 = 0;
+int count1 = 0; //has to be zero here in order for gameSwitchButtonsAroundCheat to work
+int count2;
 /* ********** GAMELOGIC CHEAT SYSTEM **********
  Speed cheat
  if turned on gamespeed is faster, but still works right according to project assingment.
@@ -37,14 +38,17 @@ int count2 = 0;
 bool gameSpeedCheat = false;
 // Display cheat can distract the opposing player since he/she can't be sure of current personal score.
 // Display cheat is enabled when button 0 is pressed in fourth round
-bool displayCheat = false;
-// switchButtonsAround cheat. Example: button 0 -> button 3
-bool switchButtonsAround = false;
+bool gameDisplayCheat = false;
+/*
+ switchButtonsAround cheat. Example: button 0 -> button 3. Normally is enabled, but can be disabled by
+ pressing button 3 for 1 second.
 
-//**************
-uint8_t tempNumber;
-
-///OOO
+ NOTE: Buttons are read from left to right
+*/
+bool gameSwitchButtonsAroundCheat = true;
+unsigned long pressTime;
+unsigned long releaseTime;
+bool buttonPress = false;
 
 void setup()
 {
@@ -78,8 +82,9 @@ void loop()
     }
     */
 
-    if ((displayCheat == true) && (indexRandomNumbers > 9)){ // This can distract opposing player. He can not know his/hers current score;
-        displayNumber(indexRandomNumbers - 5 - tempNumber);
+    // This display cheat can distract opposing player. He/She can not know his/hers current score (except when the game ends);
+    if ((gameDisplayCheat == true) && (indexRandomNumbers > 9)){
+        displayNumber(indexRandomNumbers - 5 - ledNumber);
     }
     else displayNumber(indexRandomNumbers);
 
@@ -94,12 +99,12 @@ void loop()
         break;
 
     case STOP:
-        displayCheat = false;
+        gameDisplayCheat = false; // needs to be disabled in order to show the final score
+        gameSwitchButtonsAroundCheat = true; // needs to be reanabled here. Can't be in initializeGame() since, this has to be turned on before the game begins
         setAllLeds(); // indicates that the game has ended
         Serial.println("WRONG");
         TCCR1B &= ~((1 << CS12) | (1 << CS10)); // stops timer1
         TCNT1 = 0; // resets timer1 counter
-
         state = IDLE;
         EIFR |= (1 << INTF0);
         Serial.println(String("EIFFRE: ") + EIFR);
@@ -143,7 +148,7 @@ ISR(PCINT2_vect) {
         byte mask = 1 << i;
         if (((previousStates ^ currentStates) & mask) != 0) {
             if ((currentStates & mask) == 0) {
-                if (switchButtonsAround == true){
+                if (gameSwitchButtonsAroundCheat == true){
                     painike = -(i) + 3; // switches buttons around
                 }
                 else painike = i;
@@ -166,7 +171,7 @@ ISR(PCINT2_vect) {
 ISR(TIMER1_COMPA_vect)
 {
     //Random seed generator
-    randomValue = analogRead(randomNumberGeneratorPin);
+    int randomValue = analogRead(randomNumberGeneratorPin);
     randomSeed(randomValue);
     // Set random number to randomNumbers -array
     // This is for game speed cheat
@@ -183,12 +188,10 @@ ISR(TIMER1_COMPA_vect)
 
     do{
         //numbers between 0-3 (normally)
-        tempNumber = random(minValue, maxValue);
+        ledNumber = random(minValue, maxValue);
         //this makes sure that same numbers don't appear in row in to the list
-        randomNumbers[count1] = tempNumber;
-    }while(tempNumber == randomNumbers[count1-1]);
-
-
+        randomNumbers[count1] = ledNumber;
+    }while(ledNumber == randomNumbers[count1-1]);
 
     setLed(randomNumbers[count1]);
 
@@ -248,13 +251,32 @@ void initializeTimer(void)
 
 void checkGame(byte nbrOfButtonPush)
 {
-    if ((count1 == 2) && (nbrOfButtonPush == 0)) { // second button press
+    // button 3 pressed for 1 second when game hasn't begun. nbrOfButtonPush == 0, because the gameSwitchButtonsAroundCheat is currently on
+    if ((count1 == 0) && nbrOfButtonPush == 0){
+        if (digitalRead(lastpin) == HIGH && (buttonPress == false)){ //reads from pin 6
+            pressTime = millis();
+            buttonPress = true;
+        }
+        else if (digitalRead(lastpin) && (buttonPress == true)){
+            releaseTime = millis();
+            buttonPress = false;
+            unsigned long pressDuration = releaseTime - pressTime;
+            if (pressDuration > 1000){
+                Serial.println("SWITCH BUTTONS CHEAT OFF!");
+                gameSwitchButtonsAroundCheat = false;
+            }
+        }
+        state = IDLE;
+    }
+    // button 0, second button press after game has begun
+    else if ((count1 == 2) && (nbrOfButtonPush == 0)) {
         Serial.println("SPEED CHEAT ON!");
         gameSpeedCheat = true;
         indexRandomNumbers++;
         state = GAMERUNNING;
     }
-    else if ((count1 == 4) && (nbrOfButtonPush == 0)) { // fourth button press
+    // button 0, fourth button press after game has begun
+    else if ((count1 == 4) && (nbrOfButtonPush == 0)) {
         Serial.println("DISPLAY CHEAT ON!");
         gameSpeedCheat = true;
         indexRandomNumbers++;
@@ -282,8 +304,7 @@ void initializeGame()
     OCR1A = TICKS_PER_SECONDS;
     //cheats
     gameSpeedCheat = false;
-    displayCheat = false;
-    switchButtonsAround = false;
+    gameDisplayCheat = false;
 
 	// see requirements for the function from SpedenSpelit.h
 }
