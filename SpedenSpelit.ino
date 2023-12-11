@@ -2,15 +2,9 @@
 #include "buttons.h"
 #include "leds.h"
 #include "SpedenSpelit.h"
+#include "lcd_logic.h"
 
-// Switch states for loop
-enum State {
-    IDLE,
-    PRESS,
-    STOP,
-    START,
-    GAMERUNNING
-};
+
 volatile State state = IDLE;
 
 // Button that was pressed
@@ -51,7 +45,7 @@ void setup()
 
     initializeTimer();
 
-    initializeLeds();
+    initializeLeds(/* set pins here */);
 
     initButtonsAndButtonInterrupts();
 
@@ -64,6 +58,9 @@ void setup()
 
     // sei(); allows interrupts
     sei();
+
+    lcd_init();
+    lcd_displayScoreboard();
 }
 
 void loop()
@@ -99,7 +96,9 @@ void loop()
         TCCR1B &= ~((1 << CS12) | (1 << CS10)); // stops timer1
         TCNT1 = 0; // resets timer1 counter
 
-        state = IDLE;
+        // next state
+        state = LCD_GAMEOVER;
+
         EIFR |= (1 << INTF0);
         Serial.println(String("EIFFRE: ") + EIFR);
         EIMSK |= (1 << INT0); // enables start interrupts
@@ -114,6 +113,41 @@ void loop()
         break;
 
     case GAMERUNNING:
+        break;
+
+    case LCD_ASKNAME:
+        lcd_displayAskname();
+        
+        // likely does not work
+        switch (painike) {
+        case 0:
+            auto next = lcd_moveCursor(DIrection::LEFT);
+            if (next != State::NULL) state = next;
+            break;
+        case 1:
+            lcd_moveCursor(DIrection::UP);
+            break;
+        case 2:
+            lcd_moveCursor(DIrection::DOWN);
+            break;
+        case 3:
+            auto next = lcd_moveCursor(DIrection::RIGHT);
+            if (next != State::NULL) state = next;
+            break;
+        }
+
+        break;
+
+    case LCD_GAMEOVER:
+        lcd_newSCore(indexRandomNumbers); // set score here
+        state = lcd_displayGameover();
+        // delay
+        break;
+    
+    case LCD_SCORES:
+        lcd_displayScoreboard();
+        state = IDLE;
+        // delay
         break;
 
     default:

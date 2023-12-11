@@ -4,6 +4,19 @@
 
 constexpr uint16_t TICKS_PER_SECONDS = 15625;
 
+// Switch states for loop
+enum class State {
+    NULL = 0,
+    IDLE,
+    PRESS,
+    STOP,
+    START,
+    GAMERUNNING,
+    LCD_SCORES,
+    LCD_GAMEOVER,
+    LCD_ASKNAME
+};
+
 //#define TICKS_PER_SECONDS 15625;
 
 /*
