@@ -16,6 +16,8 @@ int randomValue;
 int randomNumbers[100];
 int userNumbers[100];
 int indexRandomNumbers = 0; // this can also be used as player score, because it has same value
+// Led number that is going to go to the randomNumbers -array
+uint8_t ledNumber;
 // These keep track on interrupt speed for the leds
 int count1 = 0;
 int count2 = 0;
@@ -29,15 +31,19 @@ int count2 = 0;
  Speed cheat is enabled when button 0 is pressed in second round
 */
 bool gameSpeedCheat = false;
-// Display cheat can distract the opposing player since they can't be sure of current score.
+// Display cheat can distract the opposing player since he/she can't be sure of current personal score.
 // Display cheat is enabled when button 0 is pressed in fourth round
-bool displayCheat = false;
-// switchButtonsAround cheat. Example: button 0 -> button 3
-bool switchButtonsAround = false;
+bool gameDisplayCheat = false;
+/*
+ gameSwitchButtonsAroundCheat cheat. Example: button 0 -> button 3. Normally is enabled, but can be disabled by
+ pressing button 3 for 1 second.
 
-//**************
-uint8_t tempNumber;
-
+ NOTE: Buttons are read from left to right
+*/
+bool gameSwitchButtonsAroundCheat = true;
+unsigned long pressTime;
+unsigned long releaseTime;
+bool buttonPress = false;
 
 void setup()
 {
@@ -75,9 +81,9 @@ void loop()
         prevState = state;
     }
 
-    // This can distract opposing player. They can't be sure of current score.
-    if ((displayCheat == true) && (indexRandomNumbers > 9)) {
-        displayNumber(indexRandomNumbers - 5 - tempNumber);
+    // This display cheat can distract opposing player. He/She can not know his/hers current score (except when the game ends);
+    if ((gameDisplayCheat == true) && (indexRandomNumbers > 9)){
+        displayNumber(indexRandomNumbers - 5 - ledNumber);
     }
     else displayNumber(indexRandomNumbers);
 
@@ -96,7 +102,7 @@ void loop()
 
     case State::STOP:
     {
-        displayCheat = false;
+        gameDisplayCheat = false;
         setAllLeds(); // indicates that the game has ended
         Serial.println("WRONG");
         TCCR1B &= ~((1 << CS12) | (1 << CS10)); // State::stops timer1
@@ -205,11 +211,6 @@ ISR(INT0_vect) {
 }
 
 
-/*
-    Here you implement logic for handling
-    interrupts from 2,3,4,5 pins for Game push buttons
-    and for pin 6 for start Game push button.
-*/
 ISR(PCINT2_vect) {
     static byte previousStates = 255;
     byte currentStates = PIND >> firstPin;
@@ -217,7 +218,7 @@ ISR(PCINT2_vect) {
         byte mask = 1 << i;
         if (((previousStates ^ currentStates) & mask) != 0) {
             if ((currentStates & mask) == 0) {
-                if (switchButtonsAround == true) {
+                if (gameSwitchButtonsAroundCheat == true){
                     painike = -(i) + 3; // switches buttons around
                 }
                 else painike = i;
@@ -230,20 +231,10 @@ ISR(PCINT2_vect) {
 }
 
 
-/*
-    Here you generate a random number that is used to
-    set certain led.
 
-    Each timer interrupt increments "played" numbers,
-    and after each 10 numbers you must increment interrupt
-    frequency.
 
-    Each generated random number must be stored for later
-    comparision against player push button State::presses.
-*/
 ISR(TIMER1_COMPA_vect)
 {
-    // Set random number to randomNumbers array
     // This is for game speed cheat
     int minValue = 0;
     int maxValue = 4;
@@ -258,10 +249,10 @@ ISR(TIMER1_COMPA_vect)
 
     do {
         // numbers between 0-3 (normally)
-        tempNumber = random(minValue, maxValue);
+        ledNumber = random(minValue, maxValue);
         // this makes sure that same numbers don't appear in row in to the list
-        randomNumbers[count1] = tempNumber;
-    } while(tempNumber == randomNumbers[count1-1]);
+        randomNumbers[count1] = ledNumber;
+    } while(ledNumber == randomNumbers[count1-1]);
 
     setLed(randomNumbers[count1]);
 
@@ -344,6 +335,6 @@ void initializeGame()
     OCR1A = TICKS_PER_SECONDS;
     // cheats
     gameSpeedCheat = false;
-    displayCheat = false;
-    switchButtonsAround = false;
+    gameDisplayCheat = false;
+    gameSwitchButtonsAroundCheat = false;
 }
