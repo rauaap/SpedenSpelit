@@ -118,20 +118,19 @@ void loop()
     case LCD_ASKNAME:
         lcd_displayAskname();
         
-        // likely does not work
         switch (painike) {
         case 0:
-            auto next = lcd_moveCursor(DIrection::LEFT);
+            auto next = lcd_moveCursor(Direction::LEFT);
             if (next != State::NULL) state = next;
             break;
         case 1:
-            lcd_moveCursor(DIrection::UP);
+            lcd_moveCursor(Direction::UP);
             break;
         case 2:
-            lcd_moveCursor(DIrection::DOWN);
+            lcd_moveCursor(Direction::DOWN);
             break;
         case 3:
-            auto next = lcd_moveCursor(DIrection::RIGHT);
+            auto next = lcd_moveCursor(Direction::RIGHT);
             if (next != State::NULL) state = next;
             break;
         }
