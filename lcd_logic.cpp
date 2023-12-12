@@ -5,7 +5,6 @@
 
 #include "i2c.h"
 #include "lcd.h"
-#include "SpedenSpelit.h"
 
 
 static int __scores[3] = {0, 0, 0};
@@ -76,12 +75,12 @@ State lcd_displayGameover()
     lcd_writeString(TXT_gameover);
 
     lcd_setCursor(0, 1);
-    State state =  State::LCD_ASKNAME;
+    State state =  LCD_ASKNAME;
     const int placement = _get_placement(__tmp_score);
     if (placement == -1) 
     {
         lcd_writeString(TXT_no_placement);
-        state = State::LCD_SCORES;
+        state = LCD_SCORES;
     }
     else if (placement == 0) lcd_writeString(TXT_1st);
     else if (placement == 1) lcd_writeString(TXT_2nd);
@@ -111,14 +110,14 @@ void lcd_displayAskname()
 
 State lcd_moveCursor(Direction dir)
 {
-    State state = State::NULL;
+    State state = NONE;
     switch (dir)
     {
         case Direction::LEFT:
             // if at leftmost position, show score without saving name
             if (--__tmp_name_idx < 0)
             {
-                state = State::LCD_SCORES;
+                state = LCD_SCORES;
             }
             break;
         
@@ -127,7 +126,7 @@ State lcd_moveCursor(Direction dir)
             if (++__tmp_name_idx > 2)
             {
                 _new_entry();
-                state = State::LCD_SCORES;
+                state = LCD_SCORES;
             }
             break;
         

@@ -59,7 +59,7 @@ void setup()
     // sei(); allows interrupts
     sei();
 
-    lcd_init();
+    lcd_init(0x25);
     lcd_displayScoreboard();
 }
 
@@ -120,9 +120,11 @@ void loop()
         
         switch (painike) {
         case 0:
+        {
             auto next = lcd_moveCursor(Direction::LEFT);
-            if (next != State::NULL) state = next;
+            if (next != NONE) state = next;
             break;
+        }
         case 1:
             lcd_moveCursor(Direction::UP);
             break;
@@ -130,22 +132,26 @@ void loop()
             lcd_moveCursor(Direction::DOWN);
             break;
         case 3:
+        {
             auto next = lcd_moveCursor(Direction::RIGHT);
-            if (next != State::NULL) state = next;
+            if (next != NONE) state = next;
             break;
+        }
         }
         break;
 
     case LCD_GAMEOVER:
-        lcd_newSCore(indexRandomNumbers); // set score here
+        lcd_newScore(indexRandomNumbers); // set score here
         state = lcd_displayGameover();
         // delay
+        delay(2000);
         break;
     
     case LCD_SCORES:
         lcd_displayScoreboard();
         state = IDLE;
         // delay
+        delay(2000);
         break;
 
     default:
@@ -318,4 +324,3 @@ void initializeGame()
 
 	// see requirements for the function from SpedenSpelit.h
 }
-

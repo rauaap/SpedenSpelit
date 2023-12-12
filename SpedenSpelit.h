@@ -5,8 +5,8 @@
 constexpr uint16_t TICKS_PER_SECONDS = 15625;
 
 // Switch states for loop
-enum class State {
-    NULL = 0,
+enum State {
+    NONE = 0,
     IDLE,
     PRESS,
     STOP,

@@ -1,6 +1,8 @@
 #ifndef LCD_LOGIC_H_
 #define LCD_LOGIC_H_
 
+#include "SpedenSpelit.h"
+
 #define DEFAULT_NAME_INPUT "AAA"
 #define DEFAULT_NAME_EMPTY "---"
 
@@ -11,7 +13,6 @@
 #define TXT_no_placement    "   Try again!"
 #define TXT_nameinput       "Name:"
 
-#include <Arduino.h>
 
 
 enum class Direction
@@ -24,15 +25,14 @@ enum class Direction
 
 
 void lcd_init(uint8_t addr);
-Mode lcd_getMode();
 void lcd_newScore(int score);
 
 // game over
-void lcd_displayGameover();
+State lcd_displayGameover();
 
 // ask name
 void lcd_displayAskname();
-void lcd_moveCursor(Direction dir);
+State lcd_moveCursor(Direction dir);
 
 // show score
 void lcd_displayScoreboard();
