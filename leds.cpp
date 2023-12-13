@@ -19,6 +19,13 @@ void setLed(uint8_t ledNumber)
 }
 
 
+void setLedEx(uint8_t ledNumber)
+{
+    if (ledNumber < 0 || ledNumber > 3) return;
+    digitalWrite(__pins[ledNumber], HIGH);
+}
+
+
 void clearAllLeds()
 {
     for (int i = 0; i < 4; i++) digitalWrite(__pins[i], LOW);

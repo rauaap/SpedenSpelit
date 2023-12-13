@@ -4,6 +4,8 @@
 #include "SpedenSpelit.h"
 #include "lcd_logic.h"
 
+#include <avr/interrupt.h>
+
 
 volatile State state = IDLE;
 
@@ -45,7 +47,7 @@ void setup()
 
     initializeTimer();
 
-    initializeLeds(/* set pins here */);
+    initializeLeds(9, 10, 11, 12);
 
     initButtonsAndButtonInterrupts();
 
@@ -60,7 +62,7 @@ void setup()
     sei();
 
     lcd_init(0x25);
-    lcd_displayScoreboard();
+    lcd_displayScoreboard(); 
 }
 
 void loop()
@@ -144,14 +146,14 @@ void loop()
         lcd_newScore(indexRandomNumbers); // set score here
         state = lcd_displayGameover();
         // delay
-        delay(2000);
+        // delay(2000);
         break;
     
     case LCD_SCORES:
         lcd_displayScoreboard();
         state = IDLE;
         // delay
-        delay(2000);
+        // delay(2000);
         break;
 
     default:

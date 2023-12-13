@@ -4,6 +4,9 @@
 #include <arduino.h>
 
 
+void setLedEx(uint8_t ledNumber);
+
+
 /** 
  * @brief Initializes provided pins as outputs
  * 

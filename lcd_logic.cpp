@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <EEPROM.h>
+
 #include "i2c.h"
 #include "lcd.h"
 
@@ -15,6 +17,51 @@ static char __names[][4] = {DEFAULT_NAME_EMPTY,
 static char __tmp_name[] = DEFAULT_NAME_INPUT;
 static int __tmp_name_idx = 0;
 static int __tmp_score = 0;
+
+
+void lcd_saveEntries()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        // score
+        EEPROM.update(i * 4, __scores[i]);
+        delay(4);
+
+        // name
+        EEPROM.update(i * 4 + 1, __names[i][0]);
+        delay(4);
+        EEPROM.update(i * 4 + 2, __names[i][1]);
+        delay(4);
+        EEPROM.update(i * 4 + 3, __names[i][2]);
+        delay(4);
+    }
+}
+
+
+void lcd_loadEntries()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        char name[4];
+        name[0] = EEPROM.read(i * 4 + 1);
+        name[1] = EEPROM.read(i * 4 + 2);
+        name[2] = EEPROM.read(i * 4 + 3);
+        name[3] = '\0';
+        strcpy(__names[i], name);
+        __scores[i] = EEPROM.read(i * 4);
+    }
+}
+
+
+void lcd_resetEntries()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        strcpy(__names[i], DEFAULT_NAME_EMPTY);
+        __scores[i] = 0;
+    }
+    lcd_saveEntries();
+}
 
 
 static char *_score_to_string(int score)
@@ -51,6 +98,8 @@ static void _new_entry()
     // insert new score
     __scores[placement] = __tmp_score;
     strcpy(__names[placement], __tmp_name);
+
+    lcd_saveEntries();
 }
 
 
@@ -59,6 +108,7 @@ void lcd_init(uint8_t addr)
     i2c_init(addr);
     lcd_baseInit();
     lcd_writeCommand(CLEAR);
+    lcd_loadEntries();
 }
 
 

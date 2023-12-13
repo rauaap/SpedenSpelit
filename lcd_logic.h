@@ -27,6 +27,10 @@ enum class Direction
 void lcd_init(uint8_t addr);
 void lcd_newScore(int score);
 
+void lcd_saveEntries();
+void lcd_loadEntries();
+void lcd_resetEntries();
+
 // game over
 State lcd_displayGameover();
 
