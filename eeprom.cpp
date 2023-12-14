@@ -1,4 +1,4 @@
-#include <avr/eeprom.h>
+#include <avr/io.h>
 #include "eeprom.h"
 
 uint8_t eeprom_read(uint8_t addr) {
