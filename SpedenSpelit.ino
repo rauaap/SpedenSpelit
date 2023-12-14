@@ -67,15 +67,6 @@ void setup()
 
 void loop()
 {
-    /* DEBUG
-    static State prevState = IDLE;
-
-    if (state != prevState) {
-        Serial.println(String("State: ") + state);
-        prevState = state;
-    }
-    */
-
     if ((displayCheat == true) && (indexRandomNumbers > 9)){ // This can distract opposing player. He can not know his/hers current score;
         displayNumber(indexRandomNumbers - 5 - tempNumber);
     }
@@ -314,6 +305,7 @@ void checkGame(byte nbrOfButtonPush)
 
 void initializeGame()
 {
+    clearAllLeds();
     count1 = 0;
     count2 = 0;
     indexRandomNumbers = 0;
