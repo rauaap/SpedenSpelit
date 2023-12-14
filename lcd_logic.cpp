@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <EEPROM.h>
+#include "eeprom.h"
 
 #include "i2c.h"
 #include "lcd.h"
@@ -24,15 +24,15 @@ void lcd_saveEntries()
     for (int i = 0; i < 3; i++)
     {
         // score
-        EEPROM.update(i * 4, __scores[i]);
+        eeprom_write(i * 4, __scores[i]);
         delay(4);
 
         // name
-        EEPROM.update(i * 4 + 1, __names[i][0]);
+        eeprom_write(i * 4 + 1, __names[i][0]);
         delay(4);
-        EEPROM.update(i * 4 + 2, __names[i][1]);
+        eeprom_write(i * 4 + 2, __names[i][1]);
         delay(4);
-        EEPROM.update(i * 4 + 3, __names[i][2]);
+        eeprom_write(i * 4 + 3, __names[i][2]);
         delay(4);
     }
 }
@@ -43,12 +43,12 @@ void lcd_loadEntries()
     for (int i = 0; i < 3; i++)
     {
         char name[4];
-        name[0] = EEPROM.read(i * 4 + 1);
-        name[1] = EEPROM.read(i * 4 + 2);
-        name[2] = EEPROM.read(i * 4 + 3);
+        name[0] = eeprom_read(i * 4 + 1);
+        name[1] = eeprom_read(i * 4 + 2);
+        name[2] = eeprom_read(i * 4 + 3);
         name[3] = '\0';
         strcpy(__names[i], name);
-        __scores[i] = EEPROM.read(i * 4);
+        __scores[i] = eeprom_read(i * 4);
     }
 }
 
