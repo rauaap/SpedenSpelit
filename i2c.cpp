@@ -1,6 +1,7 @@
 #include "i2c.h"
 
 #include <compat/twi.h>
+#include <util/delay.h>
 #include <avr/interrupt.h>
 
 
@@ -15,11 +16,11 @@ void i2c_init(uint8_t slaveAddr) {
     TWSR &= ~( _BV(TWPS0) | _BV(TWPS1) );
     // SCL frequency formula on page 180 in the ATmega328p datasheet
     TWBR = (F_CPU / TWI_FREQ - 16) / 2;
-    sei();
 
     // I2C pins as outputs with pull-up resistors enabled
     DDRC &= ~(_BV(DDC4) | _BV(DDC5));
     PORTC |= _BV(PORTC4) | _BV(PORTC5);
+    _delay_us(1);
 }
 
 
