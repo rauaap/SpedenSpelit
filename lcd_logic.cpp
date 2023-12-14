@@ -213,7 +213,7 @@ void lcd_displayScoreboard()
     lcd_writeString(_score_to_string(__scores[0]));
 
     // #2
-    ;lcd_setCursor(7, 0);
+    lcd_setCursor(7, 0);
     lcd_writeString(__names[1]);
     lcd_setCursor(8, 1);
     lcd_writeString(_score_to_string(__scores[1]));
