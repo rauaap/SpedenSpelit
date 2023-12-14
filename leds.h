@@ -16,8 +16,7 @@ void setLedEx(uint8_t ledNumber);
  * @param p3 pin for led 3
  * @note pins default to A2, A3, A4, and A5
  */
-void initializeLeds(uint8_t p0 = A2, uint8_t p1 = A3,
-                    uint8_t p2 = A4, uint8_t p3 = A5);
+void initializeLeds(void);
 
 
 /**

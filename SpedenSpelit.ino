@@ -46,13 +46,8 @@ void setup()
     Serial.begin(9600);
 
     initializeTimer();
-
-    initializeLeds(9, 10, 11, 12);
-
+    initializeLeds();
     initButtonsAndButtonInterrupts();
-
-    // Display
-    // Digital pins 8,9,10
     initDisplay();
 
     //indicates that game has not started

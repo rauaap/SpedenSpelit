@@ -1,12 +1,9 @@
 #include "leds.h"
 
+static constexpr uint8_t __pins[4] = {9, 10, 11, 12};
 
-static uint8_t __pins[4];
-
-
-void initializeLeds(uint8_t p0, uint8_t p1, uint8_t p2, uint8_t p3)
+void initializeLeds(void)
 {
-    __pins[0] = p0; __pins[1] = p1; __pins[2] = p2; __pins[3] = p3;
     for (int i = 0; i < 4; i++) pinMode(__pins[i], OUTPUT);
 }
 
