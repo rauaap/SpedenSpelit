@@ -32,11 +32,11 @@ void lcd_loadEntries();
 void lcd_resetEntries();
 
 // game over
-State lcd_displayGameover();
+bool lcd_displayGameover();
 
 // ask name
 void lcd_displayAskname();
-State lcd_moveCursor(Direction dir);
+bool lcd_moveCursor(Direction dir);
 
 // show score
 void lcd_displayScoreboard();
