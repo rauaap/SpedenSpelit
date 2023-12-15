@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <EEPROM.h>
+#include "eeprom.h"
 
 #include "i2c.h"
 #include "lcd.h"
@@ -24,15 +24,15 @@ void lcd_saveEntries()
     for (int i = 0; i < 3; i++)
     {
         // score
-        EEPROM.update(i * 4, __scores[i]);
+        eeprom_write(i * 4, __scores[i]);
         delay(4);
 
         // name
-        EEPROM.update(i * 4 + 1, __names[i][0]);
+        eeprom_write(i * 4 + 1, __names[i][0]);
         delay(4);
-        EEPROM.update(i * 4 + 2, __names[i][1]);
+        eeprom_write(i * 4 + 2, __names[i][1]);
         delay(4);
-        EEPROM.update(i * 4 + 3, __names[i][2]);
+        eeprom_write(i * 4 + 3, __names[i][2]);
         delay(4);
     }
 }
@@ -43,12 +43,12 @@ void lcd_loadEntries()
     for (int i = 0; i < 3; i++)
     {
         char name[4];
-        name[0] = EEPROM.read(i * 4 + 1);
-        name[1] = EEPROM.read(i * 4 + 2);
-        name[2] = EEPROM.read(i * 4 + 3);
+        name[0] = eeprom_read(i * 4 + 1);
+        name[1] = eeprom_read(i * 4 + 2);
+        name[2] = eeprom_read(i * 4 + 3);
         name[3] = '\0';
         strcpy(__names[i], name);
-        __scores[i] = EEPROM.read(i * 4);
+        __scores[i] = eeprom_read(i * 4);
     }
 }
 
@@ -108,7 +108,9 @@ void lcd_init(uint8_t addr)
     i2c_init(addr);
     lcd_baseInit();
     lcd_writeCommand(CLEAR);
+    
     lcd_loadEntries();
+    // lcd_resetEntries();
 }
 
 
@@ -118,19 +120,20 @@ void lcd_newScore(int score)
 }
 
 
-State lcd_displayGameover()
+// returns true if state should be askname, false for scoreboard
+bool lcd_displayGameover()
 {
     lcd_writeCommand(CLEAR);
     lcd_setCursor(0, 0);
     lcd_writeString(TXT_gameover);
 
     lcd_setCursor(0, 1);
-    State state =  LCD_ASKNAME;
+    bool res = true;
     const int placement = _get_placement(__tmp_score);
     if (placement == -1) 
     {
         lcd_writeString(TXT_no_placement);
-        state = LCD_SCORES;
+        res = false;
     }
     else if (placement == 0) lcd_writeString(TXT_1st);
     else if (placement == 1) lcd_writeString(TXT_2nd);
@@ -140,7 +143,7 @@ State lcd_displayGameover()
     strcpy(__tmp_name, DEFAULT_NAME_INPUT);
     __tmp_name_idx = 0;
 
-    return state;
+    return res;
 }
 
 
@@ -158,53 +161,53 @@ void lcd_displayAskname()
 }
 
 
-State lcd_moveCursor(Direction dir)
+// returns true if state needs to change
+bool lcd_moveCursor(Direction dir)
 {
-    State state = NONE;
     switch (dir)
     {
         case Direction::LEFT:
             // if at leftmost position, show score without saving name
             if (--__tmp_name_idx < 0)
             {
-                state = LCD_SCORES;
+                return true;                
             }
-            break;
+            return false;
         
         case Direction::RIGHT:
             // if at rightmost position, show score and save name
             if (++__tmp_name_idx > 2)
             {
                 _new_entry();
-                state = LCD_SCORES;
+                return true;
             }
-            break;
+            return false;
         
         case Direction::DOWN:
             if (__tmp_name[__tmp_name_idx] == 'Z')
                 __tmp_name[__tmp_name_idx] = 'A';
             else
                 __tmp_name[__tmp_name_idx]++;
-            break;
+            return false;
         
         case Direction::UP:
             if (__tmp_name[__tmp_name_idx] == 'A')
                 __tmp_name[__tmp_name_idx] = 'Z';
             else
                 __tmp_name[__tmp_name_idx]--;
-            break;
+            return false;
         
         default:
-            break;
+            return false;
     }
-
-    return state;
 }
 
 
 void lcd_displayScoreboard()
 {
+    Serial.print("lcd_displayScoreboard");
     lcd_writeCommand(CLEAR);
+    Serial.println("1");
 
     // #1
     lcd_setCursor(2, 0);
@@ -212,12 +215,14 @@ void lcd_displayScoreboard()
     lcd_setCursor(3, 1);
     lcd_writeString(_score_to_string(__scores[0]));
 
+    Serial.println("2");
     // #2
-    ;lcd_setCursor(7, 0);
+    lcd_setCursor(7, 0);
     lcd_writeString(__names[1]);
     lcd_setCursor(8, 1);
     lcd_writeString(_score_to_string(__scores[1]));
 
+    Serial.println("3");
     // #3
     lcd_setCursor(12, 0);
     lcd_writeString(__names[2]);

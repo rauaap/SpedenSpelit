@@ -1,6 +1,7 @@
 #include "lcd.h"
 
 #include <avr/delay.h>
+#include <arduino.h>
 
 #include "i2c.h"
 
@@ -63,7 +64,10 @@ void lcd_writeCommand(uint8_t command) {
 
     // These two commands require much longer to execute than others
     if (command == CLEAR || command == HOME)
+    {
         _delay_ms(HOME_CLEAR_DELAY);
+        Serial.println("lcd_writeCommand");
+    }
     else
         _delay_us(COMMAND_DELAY);
 }

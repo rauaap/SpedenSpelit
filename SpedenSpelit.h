@@ -6,13 +6,13 @@ constexpr uint16_t TICKS_PER_SECONDS = 15625;
 
 // Switch states for loop
 enum State {
-    NONE = 0,
+    NONE,
     IDLE,
     PRESS,
     STOP,
     START,
     GAMERUNNING,
-    LCD_SCORES,
+    LCD_SCOREBOARD,
     LCD_GAMEOVER,
     LCD_ASKNAME
 };
