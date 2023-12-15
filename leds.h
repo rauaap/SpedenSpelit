@@ -4,10 +4,17 @@
 #include <arduino.h>
 
 
-/**
- * @brief Subroutine intializes analog pins A2,A3,A4,A5 to be used as outputs.
- *        Speden Spelit leds are connected to those pins. 
+void setLedEx(uint8_t ledNumber);
+
+
+/** 
+ * @brief Initializes provided pins as outputs
  * 
+ * @param p0 pin for led 0
+ * @param p1 pin for led 1
+ * @param p2 pin for led 2
+ * @param p3 pin for led 3
+ * @note pins default to A2, A3, A4, and A5
  */
 void initializeLeds(void);
 

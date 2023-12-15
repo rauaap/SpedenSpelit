@@ -14,5 +14,3 @@ void initButtonsAndButtonInterrupts(){
     PCICR |= (1 << PCIE2);
     PCMSK2 |= ((1 << PCINT19) | (1 << PCINT20) | (1 << PCINT21) | (1 << PCINT22));
 }
-
-
