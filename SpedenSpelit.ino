@@ -243,9 +243,6 @@ ISR(PCINT2_vect) {
 */
 ISR(TIMER1_COMPA_vect)
 {
-    // Random seed generator
-    randomValue = analogRead(randomNumberGeneratorPin);
-    randomSeed(randomValue);
     // Set random number to randomNumbers array
     // This is for game speed cheat
     int minValue = 0;
@@ -334,6 +331,11 @@ void checkGame(byte nbrOfButtonPush)
 
 void initializeGame()
 {
+    // Read static from an unconnected analog pin to seed 
+    // the random number generator
+    randomValue = analogRead(randomNumberGeneratorPin);
+    randomSeed(randomValue);
+
     clearAllLeds();
     count1 = 0;
     count2 = 0;
