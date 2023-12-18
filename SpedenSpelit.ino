@@ -32,8 +32,8 @@ int count2 = 0;
 */
 bool gameSpeedCheat = false;
 // Display cheat can distract the opposing player since he/she can't be sure of current personal score.
-// Display cheat is enabled when button 0 is pressed in fourth round
-bool gameDisplayCheat = false;
+// Display cheat is disabled when button 0 is pressed in fourth round
+bool gameDisplayCheat = true;
 /*
  gameSwitchButtonsAroundCheat cheat. Example: button 0 -> button 3. Normally is enabled, but can be disabled by
  pressing button 3 for 1 second.
@@ -265,8 +265,8 @@ ISR(TIMER1_COMPA_vect)
         count1++;
         if ((gameSpeedCheat == false) && (count1 % 10 == 0)) {
             count2++;
-            int temp = (TICKS_PER_SECONDS - (TICKS_PER_SECONDS * (0.1 * count2)));
-            OCR1A = temp ? temp : 1562; //faster max game speed
+            int temp = (TICKS_PER_SECONDS - (TICKS_PER_SECONDS * (0.1 * count2))); //faster max game speed
+            OCR1A = temp ? temp : 1562;
         }
         else if ((gameSpeedCheat == true) && (count1 % 10 == 0)) {
             count2++;
@@ -300,11 +300,11 @@ void checkGame(byte nbrOfButtonPush)
 {
     // button 3 pressed for 1 second when game hasn't begun. nbrOfButtonPush == 0, because the gameSwitchButtonsAroundCheat is currently on
     if ((count1 == 0) && nbrOfButtonPush == 0){
-        if ((digitalRead(lastpin) == HIGH) && (cheatButtonPress == false)){ //reads from pin 6
+        if ((digitalRead(lastPin) == HIGH) && (cheatButtonPress == false)){ //reads from pin 6
             pressTime = millis();
             cheatButtonPress = true;
         }
-        else if ((digitalRead(lastpin) == LOW) && (cheatButtonPress == true)){
+        else if ((digitalRead(lastPin) == LOW) && (cheatButtonPress == true)){
             releaseTime = millis();
             cheatButtonPress = false;
             unsigned long pressDuration = releaseTime - pressTime;
@@ -314,6 +314,7 @@ void checkGame(byte nbrOfButtonPush)
             }
         }
         state = State::IDLE;
+        return;
     }
     state = State::GAMERUNNING;
     if ((count1 == 2) && (nbrOfButtonPush == 0)) { // second button press
@@ -323,8 +324,8 @@ void checkGame(byte nbrOfButtonPush)
         // state = State::GAMERUNNING;
     }
     else if ((count1 == 4) && (nbrOfButtonPush == 0)) { // fourth button press
-        Serial.println("DISPLAY CHEAT ON!");
-        gameSpeedCheat = true;
+        Serial.println("DISPLAY CHEAT OFF!");
+        gameDisplayCheat = false;
         indexRandomNumbers++;
         // state = State::GAMERUNNING;
     }
@@ -352,6 +353,6 @@ void initializeGame()
     OCR1A = TICKS_PER_SECONDS;
     // cheats
     gameSpeedCheat = false;
-    gameDisplayCheat = false;
+    gameDisplayCheat = true;
     gameSwitchButtonsAroundCheat = false;
 }
