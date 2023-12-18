@@ -354,5 +354,5 @@ void initializeGame()
     // cheats
     gameSpeedCheat = false;
     gameDisplayCheat = true;
-    gameSwitchButtonsAroundCheat = false;
+    gameSwitchButtonsAroundCheat = true;
 }
