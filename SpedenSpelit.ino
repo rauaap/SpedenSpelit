@@ -43,7 +43,7 @@ bool gameDisplayCheat = false;
 bool gameSwitchButtonsAroundCheat = true;
 unsigned long pressTime;
 unsigned long releaseTime;
-bool buttonPress = false;
+bool cheatButtonPress = false;
 
 void setup()
 {
@@ -298,6 +298,23 @@ void initializeTimer(void)
 
 void checkGame(byte nbrOfButtonPush)
 {
+    // button 3 pressed for 1 second when game hasn't begun. nbrOfButtonPush == 0, because the gameSwitchButtonsAroundCheat is currently on
+    if ((count1 == 0) && nbrOfButtonPush == 0){
+        if ((digitalRead(lastpin) == HIGH) && (cheatButtonPress == false)){ //reads from pin 6
+            pressTime = millis();
+            cheatButtonPress = true;
+        }
+        else if ((digitalRead(lastpin) == LOW) && (cheatButtonPress == true)){
+            releaseTime = millis();
+            cheatButtonPress = false;
+            unsigned long pressDuration = releaseTime - pressTime;
+            if (pressDuration > 1000){
+                Serial.println("SWITCH BUTTONS CHEAT OFF!");
+                gameSwitchButtonsAroundCheat = false;
+            }
+        }
+        state = State::IDLE;
+    }
     state = State::GAMERUNNING;
     if ((count1 == 2) && (nbrOfButtonPush == 0)) { // second button press
         Serial.println("SPEED CHEAT ON!");
